@@ -1,53 +1,7 @@
 import random
-import colorama
-from datetime import datetime
-from webbrowser import get
-from colorama import Fore, Back, Style
-from rich.console import Console
 import requests
 from bs4 import BeautifulSoup
-from numpy import true_divide
-
-colorama.init(autoreset=True)
-console = Console()
-
-# returns date to be used a seed for random
-def get_datetime():
-    date_time = datetime.today().strftime("%d%m%Y")
-    return date_time[-6:]
-
-
-# scrapes urban dictionary to get the definitions for Lewdle
-def scrape_ud():
-    URL = "https://www.urbandictionary.com/define.php?term={}".format(todays_word)
-    print(URL)
-    print(type(URL))
-    page = requests.get(URL)
-    print(page)
-    soup = BeautifulSoup(page.content, "html.parser")
-
-    results = soup.find(id="ud-root")
-    definitions = results.find_all("div", class_="meaning mb-4")
-    examples = results.find_all("div", class_="example italic mb-4")
-    print("\nMeaning:")
-    print(definitions[0].text)
-    print("\nExample: ")
-    print(examples[0].text)
-
-
-def ordinal(n):
-    switcher = {
-        1: "Genius! You guessed the word on your 1st try",
-        2: "Magnificent You guessed the word on your 2nd try",
-        3: "Impressive You guessed the word on your 3rd try",
-        4: "Splendid You guessed the word on your 4th try",
-        5: "Great You guessed the word on your 5th try",
-        6: "ImprPhewessive You guessed the word on your 6th try",
-    }
-    return switcher.get(n, "Invalid number")
-
-
-random.seed(get_datetime())
+from datetime import datetime
 
 bad_words_list = [
     "BONER",
@@ -13161,71 +13115,36 @@ total_words_in_list = [
 
 total_words_set = set(total_words_in_list)
 
-while True:
-    answer = input("Do you wanna play Wordle(1) or Lewdle(2): ")
-    if answer == "1":
-        print("Lets play Wordle")
-        todays_word = correct_list_in_order[
-            random.randint(0, len(correct_list_in_order))
-        ]
-        break
-    elif answer == "2":
-        print("Lets play Lewdle")
-        todays_word = bad_words_list[random.randint(0, len(bad_words_list))].lower()
-        break
 
-guess_word = ["_", "_", "_", "_", "_"]
-todays_word_in_list = list(todays_word)
+def get_datetime():
+    date_time = datetime.today().strftime("%d%m%Y")
+    return date_time[-6:]
 
-for i in range(5):
-    input_string = input("Enter a 5 letter string: ")
-    while True:
-        if len(input_string) == 5 and (
-            input_string in total_words_set or input_string in correct_list_in_order
-        ):
-            break
-        input_string = input("Invalid word, Please input again: ")
 
-    for j in range(5):
-        if input_string[j] == todays_word_in_list[j]:
-            guess_word[j] = input_string[j]
-            print(Fore.GREEN + guess_word[j], end="")
-            print(Style.RESET_ALL, end="")
+random.seed(get_datetime())
 
-        elif input_string[j] in todays_word_in_list:
-            print(Fore.YELLOW + input_string[j], end="")
-            print(Style.RESET_ALL, end="")
+todays_word = bad_words_list[random.randint(0, len(bad_words_list))]
+print(todays_word)
 
-        else:
-            print(Fore.RED + input_string[j], end="")
-            print(Style.RESET_ALL, end="")
+URL = "https://www.urbandictionary.com/define.php?term={}".format(todays_word)
+page = requests.get(URL)
 
-    string_guess_word = "".join(guess_word)
-    # print(Fore.GREEN + string_guess_word.upper())
-    # print(Style.RESET_ALL, end="")
-    if input_string == string_guess_word:
-        print()
-        break
-    print()
+soup = BeautifulSoup(page.content, "html.parser")
 
-if string_guess_word == todays_word:
-    print(ordinal(i + 1), end="")
-    console.print(" :thumbs_up:")
-    # print("\x1b[6;30;42m" + "{}".format(todays_word.upper()) + "\x1b[0m")
+results = soup.find(id="ud-root")
+definitions = results.find_all("div", class_="meaning mb-4")
+examples = results.find_all("div", class_="example italic mb-4")
 
-    # print("\nCONGRATULATIONS!!!", end="")
-    # console.print(":thumbs_up:")
-    # print("You guessed the word ", end="")
-    # print(Back.GREEN + "{}".format(todays_word.upper()), end="")
-    # print(Style.RESET_ALL, end="")
-    # print(" on your {}th try".format(i + 1))
-else:
-    print("\nBetter Luck tomorrow", end="")
-    console.print(":pile_of_poo:")
-    print(
-        "The word was " + "\x1b[6;30;42m" + "{}".format(todays_word.upper()) + "\x1b[0m"
-    )
-    # print("The word was {}".format(todays_word))
+print(definitions[0].text)
+print("\nExample: ")
+print(examples[0].text)
 
-if answer == "2":
-    scrape_ud()
+# for definition in definitions:
+#     print(definition.text.strip(), end=" ")
+
+# print("\nExample:\n")
+
+# for example in examples:
+#     print(example.text.strip(), end="\n")
+
+# print()
